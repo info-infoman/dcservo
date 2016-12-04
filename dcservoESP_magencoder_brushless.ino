@@ -20,7 +20,7 @@
 #include <EEPROM.h>
 #include <PID_v1.h>
 #include <Wire.h>         // support for I2C encoder
-
+#include <PWM.h> //подключаем вертелку
 
 
 const int Step = 14;
@@ -123,7 +123,7 @@ void loop() {
 
    }
   void pwmOut(int out) {
-   if(out>=0) digitalWrite(DIR, HIGH); else digitalWrite(DIR, LOW); // control direction pin
+   if(out>=0) digitalWrite(DIR, HIGH); else (DIR, LOW); // control direction pin
    analogWrite(PWM,255-abs(out)); // my Nidec Brushless Motor 24H PWM works the other way around
   }
 
