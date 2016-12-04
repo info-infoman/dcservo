@@ -20,8 +20,6 @@
 #include <EEPROM.h>
 #include <PID_v1.h>
 #include <Wire.h>         // support for I2C encoder
-#include <PWM.h> //подключаем вертелку
-
 
 const int Step = 14;
 const int M1=16; // D0
@@ -87,6 +85,16 @@ void setup() {
   pinMode(BUILTIN_LED, OUTPUT);
   pinMode(Step, INPUT);
   pinMode(PWM, OUTPUT);
+  ///контроль силового касакада
+  //вперед
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  //назад
+  pinMode(6, OUTPUT);
+  pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
+  
   pinMode(DIR,OUTPUT);
   attachInterrupt(Step, countStep, RISING);
   analogWriteFreq(10000);  // set PWM to 20Khz
@@ -96,7 +104,7 @@ void setup() {
   recoverPIDfromEEPROM();
   //Setup the pid 
   myPID.SetMode(AUTOMATIC);
-  myPID.SetSampleTime(1);
+  myPID.SetSample(1);
   myPID.SetOutputLimits(-255,255);
   Wire.begin(12,13); // start I2C driver code D6 & D7
 }
@@ -122,9 +130,73 @@ void loop() {
     if(counting &&  (skip++ % 5)==0 ) {pos[p]=input; if(p<999) p++; else counting=false;}
 
    }
+int fwd(){
+   while(1){
+if (digitalRead(2)==1){
+    if (digitalRead(1)==0){
+      if (digitalRead(0)==1){
+        digitalWrite(8,0);digitalWrite(7,0);digitalWrite(6,0);
+        digitalWrite(5,1);digitalWrite(4,1);digitalWrite(3,0);}
+      else {
+        digitalWrite(8,1);digitalWrite(7,0);digitalWrite(6,0);
+        digitalWrite(5,1);digitalWrite(4,0);digitalWrite(3,0);}}
+        
+     if (digitalRead(1)==1){
+      if (digitalRead(0)==0){
+        digitalWrite(8,1);digitalWrite(7,0);digitalWrite(6,0);
+        digitalWrite(5,0);digitalWrite(4,0);digitalWrite(3,1);}}}
+        
+   
+ if (digitalRead(2)==0){
+    if (digitalRead(1)==1){
+      if (digitalRead(0)==0){
+        digitalWrite(8,0);digitalWrite(7,0);digitalWrite(6,1);
+        digitalWrite(5,0);digitalWrite(4,0);digitalWrite(3,1);}
+      else {
+        digitalWrite(8,0);digitalWrite(7,1);digitalWrite(6,1);
+        digitalWrite(5,0);digitalWrite(4,0);digitalWrite(3,0);}}
+        
+     if (digitalRead(1)==0){
+      if (digitalRead(0)==1){
+        digitalWrite(8,0);digitalWrite(7,1);digitalWrite(6,0);
+        digitalWrite(5,0);digitalWrite(4,1);digitalWrite(3,0);}}}
+   if (digitalRead(12)==0) break;}
+}
+ int bwd(){
+   while(1){
+if (digitalRead(2)==1){
+    if (digitalRead(1)==0){
+      if (digitalRead(0)==1){
+        digitalWrite(8,0);digitalWrite(7,0);digitalWrite(6,1);
+        digitalWrite(5,0);digitalWrite(4,0);digitalWrite(3,1);}
+      else {
+        digitalWrite(8,0);digitalWrite(7,1);digitalWrite(6,1);
+        digitalWrite(5,0);digitalWrite(4,0);digitalWrite(3,0);}}
+        
+     if (digitalRead(1)==1){
+      if (digitalRead(0)==0){
+        digitalWrite(8,0);digitalWrite(7,1);digitalWrite(6,0);
+        digitalWrite(5,0);digitalWrite(4,1);digitalWrite(3,0);}}}
+        
+   
+ if (digitalRead(2)==0){
+    if (digitalRead(1)==1){
+      if (digitalRead(0)==0){
+        digitalWrite(8,0);digitalWrite(7,0);digitalWrite(6,0);
+        digitalWrite(5,1);digitalWrite(4,1);digitalWrite(3,0);}
+      else {
+        digitalWrite(8,1);digitalWrite(7,0);digitalWrite(6,0);
+        digitalWrite(5,1);digitalWrite(4,0);digitalWrite(3,0);}}
+        
+     if (digitalRead(1)==0){
+      if (digitalRead(0)==1){
+        digitalWrite(8,1);digitalWrite(7,0);digitalWrite(6,0);
+        digitalWrite(5,0);digitalWrite(4,0);digitalWrite(3,1);}}}
+   if (digitalRead(12)==0) break;}
+}
   void pwmOut(int out) {
-   if(out>=0) digitalWrite(DIR, HIGH); else (DIR, LOW); // control direction pin
-   analogWrite(PWM,255-abs(out)); // my Nidec Brushless Motor 24H PWM works the other way around
+   if(out>=0) bwd(); else fwd(); // сигналы на силовой каскад
+   analogWrite(PWM,255-abs(out)); // сигнал на TTL длинны импульса выходных каскадов
   }
 
 
